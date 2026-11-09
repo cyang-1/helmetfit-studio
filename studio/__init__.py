@@ -1,0 +1,1 @@
+"""HelmetFit Studio local application."""

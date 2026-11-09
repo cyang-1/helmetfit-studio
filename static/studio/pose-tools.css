@@ -1,0 +1,16 @@
+.pose-tools {
+  position: absolute; z-index: 2; bottom: 10px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: stretch; gap: 2px; padding: 3px; max-width: 100%;
+  white-space: nowrap; border: 1px solid #5a6260; border-radius: 7px; background: #222729ed;
+}
+.pose-tools button {
+  color: #dbe1d9; background: transparent; border: 0; border-radius: 4px;
+  padding: 5px 8px; font-size: 12px; line-height: 1.5;
+}
+.pose-tools button:hover { background: #373f3e; }
+.pose-tools button[aria-pressed=true] { background: var(--accent); color: #172008; font-weight: 650; }
+#pose-center { border-left: 1px solid #526059; border-radius: 0 4px 4px 0; }
+@media (max-width: 400px) {
+  .pose-tools { bottom: 6px; }
+  .pose-tools button { padding: 5px 6px; }
+}

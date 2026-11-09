@@ -1,0 +1,16 @@
+**
+!Dockerfile
+!fit_mesh.py
+!studio/
+!studio/*.py
+!static/
+!static/**
+!deploy/
+!deploy/modelscope/
+!deploy/modelscope/*.sh
+!deploy/modelscope/smoke.py
+**/.*
+**/*.env
+**/*.pem
+**/*.key
+**/__pycache__/

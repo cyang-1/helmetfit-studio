@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#15171a" />
+    <link rel="icon" href="data:," />
+    <title>量身造盔 · HelmetFit Studio</title>
+    <link rel="stylesheet" href="/static/studio/studio.css" />
+    <link rel="stylesheet" href="/static/studio/upload-slots.css" />
+    <link rel="stylesheet" href="/static/studio/pose-tools.css" />
+    <script type="importmap">
+      { "imports": { "three": "/static/vendor/three.module.js" } }
+    </script>
+    <script type="module" src="/static/studio/app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#new" aria-label="量身造盔工作台"
+        ><span class="brand-mark" aria-hidden="true">H</span><span>HelmetFit <i>Studio</i></span></a
+      >
+      <span class="top-divider" aria-hidden="true"></span><span class="workspace-name">量身造盔</span>
+      <div class="header-actions">
+        <span class="printer-indicator"><i></i>Bambu Lab P1S</span>
+        <button class="mobile-history" id="projects-open" type="button">作品历史</button>
+        <button class="header-add" id="new-project" type="button">
+          <span aria-hidden="true">＋</span> 新建作品
+        </button>
+      </div>
+    </header>
+    <main class="studio-shell">
+      <aside class="controls-rail" aria-label="制作工具">
+        <nav class="steps" aria-label="制作步骤">
+          <button id="step-source" type="button" aria-pressed="true">
+            <span class="step-num">1</span>生成模型
+          </button>
+          <button id="step-fit" type="button" aria-pressed="false">
+            <span class="step-num">2</span>调整佩戴
+          </button>
+        </nav>
+        <div class="rail-content">
+          <section id="create">
+            <header class="tool-heading">
+              <h1>生成模型</h1>
+              <p id="source-intro">用参考图、文字主题或本地模型开始。</p>
+            </header>
+            <form id="source-form" class="source-panel"></form>
+            <div id="source-review" hidden>
+              <section id="candidate-actions" class="candidate-actions" hidden>
+                <div id="candidate-prompt">
+                  <h2 class="section-label">确认生成外观</h2>
+                  <p id="candidate-check-hint" class="muted">
+                    拖动模型检查正面、背面和轮廓。确认后将检查网格，再进入佩戴调整。
+                  </p>
+                  <div id="approval-structure-field" hidden></div>
+                  <button id="approve-candidate" type="button" class="primary">
+                    确认外观，继续调整佩戴 <span aria-hidden="true">→</span>
+                  </button>
+                </div>
+                <p id="candidate-error" class="error-text" role="alert" hidden></p>
+              </section>
+              <section id="mesh-review" class="quality-card" hidden>
+                <h2 class="section-label">源模型检查</h2>
+                <strong id="quality-title"></strong>
+                <p id="quality-message" class="muted"></p>
+                <div id="quality-counts"></div>
+                <div class="compare-actions">
+                  <button id="compare-original" class="secondary" type="button">查看原网格</button>
+                  <button id="compare-prepared" class="secondary" type="button">查看处理结果</button>
+                </div>
+                <button id="inspect-defect" class="text-btn" type="button" hidden>定位检查区域</button>
+                <details id="repair-settings">
+                  <summary>模型修复</summary>
+                  <label class="field"
+                    >修复方式<select id="repair-method">
+                      <option value="auto">保留细节，自动修复</option>
+                      <option value="outer">按外表面重建</option>
+                    </select></label
+                  >
+                  <p id="repair-hint" class="muted"></p>
+                  <div id="repair-structure-field" hidden></div>
+                  <p id="repair-structure-hint" class="muted" hidden>
+                    选择与原模型相符的结构来检查覆盖范围。已有后壳会保留。
+                  </p>
+                  <button id="repair" type="button" class="secondary">检查并修复模型</button>
+                </details>
+                <p id="repair-error" role="alert" class="error-text" hidden></p>
+              </section>
+              <button type="button" id="continue-fit" class="primary" hidden>
+                调整佩戴 <span>→</span>
+              </button>
+            </div>
+          </section>
+          <section id="editor" hidden>
+            <header class="tool-heading">
+              <h1>调整佩戴</h1>
+              <p>按实测尺寸调整内腔，先试戴再打印整件。</p>
+            </header>
+            <button id="quality-gate" type="button" class="secondary" hidden>返回模型检查</button>
+            <form id="fit-form" class="surface fit-panel">
+              <h2 class="section-label">头部测量</h2>
+              <div class="field-row">
+                <label class="field"
+                  >头围 <span>cm</span
+                  ><input
+                    type="number"
+                    name="circumference"
+                    value="58"
+                    min="40"
+                    max="75"
+                    step="0.1"
+                    required
+                /></label>
+                <label class="field"
+                  >佩戴余量 <span>mm</span
+                  ><input
+                    type="number"
+                    name="clearance"
+                    value="4"
+                    min="0.5"
+                    max="25"
+                    step="0.1"
+                    required
+                /></label>
+              </div>
+              <p class="muted measure-note">
+                软尺水平绕过眉弓上方和后脑最凸处。仅填头围时使用估算头型，改尺寸后同步调整外壳大小。
+              </p>
+              <details>
+                <summary>实测头型</summary>
+                <p class="muted">可补充头部最宽、前后最长及下巴至头顶的垂直距离（mm）。</p>
+                <div class="field-row triple" id="head-fields"></div>
+              </details>
+              <details id="pose-details">
+                <summary>外形对齐</summary>
+                <label class="field"
+                  >外形缩放 <span>倍</span
+                  ><input type="number" name="scale" min="0.1" max="6" step="any" value="1" required
+                /></label>
+                <div id="pose-fields"></div>
+                <button type="button" class="text-btn" id="reset-pose">恢复建议姿态</button>
+              </details>
+              <details>
+                <summary id="eye-options-title">眼窗和试戴截面</summary>
+                <label class="check"
+                  ><input type="checkbox" name="eye_window" checked /><span id="eye-cut-label"
+                    >切出贯通眼窗</span
+                  ></label
+                >
+                <div id="eye-fields" class="field-row triple"></div>
+                <p id="open-mask-eyes" class="muted" hidden>
+                  保留面具原有眼孔。调整眼线高度，检查视线能否穿过眼孔。
+                </p>
+                <label class="field"
+                  >试戴截面 <span>距头底 / 头高</span
+                  ><input
+                    type="number"
+                    name="ring_z"
+                    value="0.74"
+                    min="0.15"
+                    max="0.91"
+                    step="0.01"
+                    required
+                /></label>
+                <p class="muted">先打印这个截面，检查宽度与松紧。整件完成后再验证眼窗、戴入和摘下。</p>
+              </details>
+              <details>
+                <summary>分件与打印</summary>
+                <label class="field"
+                  >超出打印范围时的切割方向<select name="split_axis">
+                    <option value="auto">自动选择</option>
+                    <option value="x">左右分件（X）</option>
+                    <option value="y">前后分件（Y）</option>
+                    <option value="z">上下分件（Z）</option>
+                  </select></label
+                >
+              </details>
+              <div class="device"><span>Bambu Lab P1S</span><small>0.4 mm · PLA</small></div>
+              <button class="primary" type="submit" id="fit-submit">
+                适配并生成打印文件 <span aria-hidden="true">→</span>
+              </button>
+              <p id="fit-detail" class="muted" aria-live="polite"></p>
+              <p id="fit-error" class="error-text" role="alert" hidden></p>
+            </form>
+          </section>
+        </div>
+      </aside>
+      <section class="canvas-panel" aria-label="三维工作区">
+        <div class="canvas-head">
+          <div class="canvas-name">
+            <i class="cube-mark" aria-hidden="true"></i><strong>三维视窗</strong
+            ><span class="slash">/</span><span id="project-title">未命名作品</span>
+          </div>
+          <label for="preview-mode" class="visually-hidden">预览对象</label
+          ><select id="preview-mode" hidden>
+            <option value="model">制造网格</option>
+            <option value="original">原始网格</option>
+            <option value="glb">原始外观 · GLB</option>
+            <option value="fitted">适配成品</option>
+            <option value="ring">试戴环</option>
+          </select>
+        </div>
+        <div id="viewport" tabindex="0" aria-label="三维视窗，拖动旋转，滚轮缩放">
+          <div id="viewport-empty" class="viewport-empty">
+            <span class="empty-sign" aria-hidden="true">H</span>
+            <div class="generation-orbit" aria-hidden="true">
+              <div class="generation-hoop"></div>
+              <div class="generation-hoop secondary-hoop"></div>
+              <div class="orbit-core"></div>
+            </div>
+            <h2 id="empty-title">预览工作区</h2>
+            <p id="empty-copy">生成或导入头盔后，在这里检查外形与佩戴空间。</p>
+            <button id="empty-example" type="button" class="secondary">
+              打开头盔示例 <span>↗</span>
+            </button>
+          </div>
+          <div class="view-tools" id="view-tools" hidden>
+            <button id="view-front" type="button">正面</button
+            ><button id="view-back" type="button">后视</button
+            ><button id="view-home" type="button">全貌</button>
+          </div>
+          <div id="pose-tools" class="pose-tools" role="group" aria-label="头盔姿态工具" hidden>
+            <button type="button" data-pose-tool="orbit" aria-pressed="true">观察</button>
+            <button type="button" data-pose-tool="translate" aria-pressed="false">移动</button>
+            <button type="button" data-pose-tool="rotate" aria-pressed="false">旋转</button>
+            <button type="button" data-pose-tool="scale" aria-pressed="false">等比缩放</button>
+            <button type="button" id="pose-center" title="将头盔外接框中心与头模中心对齐">居中对齐</button>
+          </div>
+          <span id="view-notice" aria-live="polite" hidden></span>
+        </div>
+        <div class="canvas-foot">
+          <div class="view-controls" id="view-controls" hidden>
+            <label
+              ><input id="show-head" type="checkbox" checked /><i class="dot head-dot"></i>头模</label
+            >
+            <label
+              ><input id="show-cutter" type="checkbox" checked /><i class="dot cutter-dot"></i
+              >切除范围</label
+            >
+            <label><input id="section" type="checkbox" />剖面</label>
+            <input
+              type="range"
+              id="section-depth"
+              min="0"
+              max="100"
+              value="50"
+              aria-label="剖面位置"
+              hidden
+            />
+          </div>
+          <span class="navigation-hint">拖拽旋转 · 滚轮缩放</span>
+        </div>
+        <p id="view-info" class="viewer-info" aria-live="polite"></p>
+      </section>
+      <aside class="activity-rail" aria-label="项目与任务">
+        <section class="activity">
+          <div class="rail-heading">
+            <h2>项目进度</h2>
+            <span class="stage-pill" id="project-stage" role="status">待开始</span>
+          </div>
+          <div id="job-status" class="job-status" role="status">
+            <strong id="job-heading"></strong>
+            <p id="job-message">创建或选择作品后查看进度。</p>
+          </div>
+          <ol id="progress-steps" class="progress-steps" aria-label="实际处理阶段"></ol>
+          <div class="actions">
+            <button id="retry" class="secondary" type="button" hidden>重试</button
+            ><button id="cancel" class="secondary" type="button" hidden>取消任务</button>
+          </div>
+          <div id="cloud-recover" hidden>
+            <label class="field"
+              >已有 Aholo 任务号<input
+                id="remote-id"
+                inputmode="numeric"
+                placeholder="从 Aholo 任务历史复制"
+            /></label>
+            <p class="muted">请在 Aholo 核对任务号后继续。如果从未创建任务，请点“新建作品”。</p>
+          </div>
+        </section>
+        <section class="outputs" id="outputs" aria-labelledby="outputs-title" hidden>
+          <div class="rail-heading output-title">
+            <h2 id="outputs-title">输出文件</h2>
+            <label class="visually-hidden" for="output-revision">输出版本</label>
+            <select id="output-revision" hidden></select>
+          </div>
+          <p id="output-note" class="muted"></p>
+          <div id="download-list"></div>
+          <button id="preview-version" class="text-btn" type="button" hidden>在视窗查看此版成品</button>
+          <button id="restore-version" class="text-btn" type="button" hidden>
+            按此版本的参数继续调整
+          </button>
+          <div id="check-messages"></div>
+          <details id="output-checks" hidden>
+            <summary>几何检查结果</summary>
+            <div id="print-readout" class="print-readout"></div>
+          </details>
+        </section>
+        <section id="project-library" class="project-library" tabindex="-1">
+          <div class="rail-heading">
+            <h2>作品历史</h2>
+            <button
+              class="icon-btn"
+              id="refresh-history"
+              type="button"
+              aria-label="刷新作品列表"
+              title="刷新作品列表"
+            >
+              ↻
+            </button>
+          </div>
+          <div id="library-list" class="library-list"></div>
+        </section>
+      </aside>
+    </main>
+    <dialog id="image-dialog">
+      <div class="dialog-header">
+        <h2 id="image-title">参考图</h2>
+        <button type="button" id="close-image" class="icon-btn" aria-label="关闭参考图">×</button>
+      </div>
+      <img id="reference-full" alt="" />
+    </dialog>
+    <script type="module" src="/static/studio/upload.js"></script>
+  </body>
+</html>

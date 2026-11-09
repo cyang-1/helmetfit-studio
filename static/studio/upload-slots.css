@@ -1,0 +1,62 @@
+.upload-mode {
+  display: grid; grid-template-columns: 1fr 1fr .85fr 1.15fr; gap: 3px;
+  padding: 3px; border: 1px solid var(--edge, #d8dedb); background: var(--inset, #f0f2ee); border-radius: 9px;
+}
+.upload-mode button { padding: 7px 2px; color: var(--muted, #52605c); border: 0; border-radius: 6px; background: none; font-weight: 550; font-size: 13px; }
+.upload-mode button[aria-pressed=true] { background: var(--paper, white); color: var(--ink, #192a27); box-shadow: 0 1px 4px #142d2425; font-weight: 700; }
+.upload-note, .upload-format { color: var(--muted, #53635d); line-height: 1.5; font-size: 12px; }
+.upload-note { margin: 12px 0 9px; }
+.upload-format { margin: 7px 0 12px; font-size: 11px; }
+.source-panel #create-submit { margin-top: 11px; justify-content: center; }
+#upload-slots { display: grid; gap: 7px; }
+.angle-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+.extra-angles .angle-grid { grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 6px; }
+.angle-slot {
+  position: relative; min-width: 0; border: 1px dashed var(--edge, #aebdb6); border-radius: 8px;
+  background: var(--paper, #fff); color: var(--ink, #20312c); overflow: hidden;
+}
+.angle-slot.drag, .angle-slot:focus-within { border-color: var(--ink, #214636); outline: 2px solid var(--accent, #a8d6b6); }
+.angle-slot:hover { border-color: var(--muted, #526d60); }
+.angle-slot.has-file { border-style: solid; }
+.angle-slot.primary-angle { border-color: var(--muted, #678172); }
+.angle-picker { display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center; min-height: 66px; padding: 7px 4px; cursor: pointer; position: relative; }
+.angle-slot.primary-angle .angle-picker { min-height: 106px; }
+.angle-header { display: inline-flex; gap: 5px; align-items: center; justify-content: center; }
+.angle-title { font-size: 12px; line-height: 1.25; }
+.primary-angle .angle-title { font-size: 15px; }
+.angle-required { font-size: 10px; font-weight: 500; color: var(--muted, #53665b); }
+.angle-plus { line-height: 1; font-size: 22px; color: var(--muted, #53665b); }
+.primary-angle .angle-plus { font-size: 28px; }
+.angle-hint { font-size: 11px; color: var(--muted, #59695f); }
+.angle-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.angle-thumbnail { width: 100%; height: 54px; object-fit: contain; }
+.primary-angle .angle-thumbnail { height: 84px; }
+.angle-filename { display: block; max-width: 100%; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: 10px; }
+.angle-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px 5px; padding: 0 2px 5px; }
+.angle-tools button, .angle-tools select { border: 0; background: transparent; font-size: 10px; border-radius: 3px; padding: 2px; max-width: 100%; color: var(--muted,#52655a); cursor: pointer; }
+.extra-angles { margin: 1px 0 0; border: 0; padding: 0; }
+.extra-angles summary { font-size: 12px; color: var(--muted, #53635d); cursor: pointer; }
+.upload-examples { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 8px; }
+.upload-examples button { border: 0; padding: 3px 0; background: transparent; color: var(--muted, #465c51); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.text-source { margin: 6px 0 12px; }
+.text-source textarea {
+  display: block; width: 100%; box-sizing: border-box; min-height: 80px; resize: vertical;
+  padding: 9px 10px; margin-top: 5px; border: 1px solid var(--edge); border-radius: 7px;
+  background: var(--paper); color: var(--ink); font: inherit; line-height: 1.5;
+}
+.text-source textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.text-source textarea[aria-invalid=true] { border-color: var(--alert); }
+.theme-count { text-align: right; color: var(--muted); font-size: 11px; margin-top: 3px; }
+.theme-count.over-limit { color: var(--alert); }
+.theme-presets { border: 0; padding: 0; margin: 8px 0 0; }
+.theme-presets legend { padding: 0; font-size: 13px; }
+.theme-options { display: flex; gap: 6px; margin: 6px 0; }
+.theme-options label { position: relative; flex: 1; cursor: pointer; }
+.theme-options input { position: absolute; opacity: 0; }
+.theme-options span {
+  display: block; border: 1px solid var(--edge); border-radius: 6px; text-align: center;
+  padding: 6px 2px; font-size: 12px; color: var(--muted);
+}
+.theme-options input:checked + span { border-color: var(--ink); color: var(--ink); font-weight: 650; }
+.theme-options input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+.preset-hint { margin: 0; font-size: 12px; line-height: 1.5; color: var(--muted); }

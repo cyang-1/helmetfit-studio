@@ -1,0 +1,19 @@
+# Personal models, measurements and credentials never belong to the source tree.
+*.env
+*.env.*
+.env*
+__pycache__/
+*.py[cod]
+/.studio-verification/
+/studio-projects/
+/jobs/
+/assets/
+/blender/
+/release/
+/*.stl
+/*.3mf
+/*.zip
+/*.json
+/*.png
+*.log
+*.sqlite3*
